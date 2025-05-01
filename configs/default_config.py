@@ -2,7 +2,7 @@ import os
 
 class Config:
     # Data configuration
-    DATA_ROOT = 'data'
+    DATA_ROOT = 'FER2013'
     BATCH_SIZE = 64
     CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     
