@@ -2,7 +2,7 @@ import os
 
 class Config:
     # Data configuration
-    DATA_ROOT = 'data_last'
+    DATA_ROOT = 'data'
     BATCH_SIZE = 64
     CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     
