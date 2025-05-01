@@ -1,10 +1,11 @@
 import torch
-from torch import nn
+import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 import torch.cuda.amp as amp
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 from configs.default_config import config
 from data.fer2013_dataset import EnhancedFER2013
@@ -49,13 +50,20 @@ def main():
         val_loss, val_acc = evaluate(model, val_loader, criterion, device)
         
         # Update LR history
-        lr_history.append(optimizer.param_groups[0]['lr'])
+        current_lr = optimizer.param_groups[0]['lr']
+        lr_history.append(current_lr)
         
         # Store metrics
         train_losses.append(train_loss)
         val_losses.append(val_loss)
         train_accs.append(train_acc)
         val_accs.append(val_acc)
+        
+        # Print epoch statistics
+        print(f"Epoch {epoch+1}/{config.EPOCHS}:")
+        print(f"  Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f}")
+        print(f"  Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f}")
+        print(f"  LR: {current_lr:.6f}")
         
         # Update schedulers
         scheduler_cosine.step()
@@ -66,27 +74,45 @@ def main():
             best_val_acc = val_acc
             patience_counter = 0
             torch.save(model.state_dict(), os.path.join(config.CHECKPOINT_DIR, 'best_model.pth'))
+            print("  New best model saved!")
         else:
             patience_counter += 1
             if patience_counter >= config.PATIENCE:
+                print(f"Early stopping after {patience_counter} epochs without improvement")
                 break
     
-    # Save training curves and LR schedule
+    # Save and display training curves
     plot_learning_curves(train_losses, val_losses, train_accs, val_accs, 
                          os.path.join(config.PLOT_DIR, 'learning_curves.png'))
+    plt.show()  # Display the plot
+    
+    # Save and display LR schedule
     plot_lr_schedule(lr_history, os.path.join(config.PLOT_DIR, 'lr_schedule.png'))
+    plt.show()  # Display the plot
     
     # Test evaluation
+    print("\nEvaluating on test set...")
     model.load_state_dict(torch.load(os.path.join(config.CHECKPOINT_DIR, 'best_model.pth')))
     test_loss, test_acc, y_true, y_pred = evaluate(model, test_loader, criterion, device, return_predictions=True)
     
     # Calculate and save test metrics
     test_metrics = calculate_metrics(y_true, y_pred, config.CLASSES)
     save_metrics(test_metrics, os.path.join(config.PLOT_DIR, 'test'))
+    
+    # Print test results
+    print(f"\nTest Results:")
+    print(f"  Loss: {test_loss:.4f}")
+    print(f"  Accuracy: {test_acc:.4f}")
+    print("\nClassification Report:")
+    print(pd.DataFrame(test_metrics['classification_report']).transpose())
+    
+    # Save and display confusion matrix
     plot_confusion_matrix(test_metrics['confusion_matrix'], config.CLASSES, 
                           os.path.join(config.PLOT_DIR, 'confusion_matrix.png'))
+    plt.show()  # Display the plot
     
     print(f"\nFinal Test Accuracy: {test_acc:.4f}")
+    print(f"All results and plots saved in {config.OUTPUT_DIR} directory")
 
 def create_loaders():
     train_dataset = EnhancedFER2013(
