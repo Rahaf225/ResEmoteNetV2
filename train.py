@@ -90,19 +90,19 @@ def main():
 
 def create_loaders():
     train_dataset = EnhancedFER2013(
-        os.path.join(config.DATA_ROOT, 'data/train_labels.csv'),
-        os.path.join(config.DATA_ROOT, 'data/train'),
+        os.path.join(config.DATA_ROOT, 'train_labels.csv'),
+        os.path.join(config.DATA_ROOT, 'train'),
         augment=True
     )
     
     val_dataset = EnhancedFER2013(
-        os.path.join(config.DATA_ROOT, 'data/val_labels.csv'),
-        os.path.join(config.DATA_ROOT, 'data/val')
+        os.path.join(config.DATA_ROOT, 'val_labels.csv'),
+        os.path.join(config.DATA_ROOT, 'val')
     )
     
     test_dataset = EnhancedFER2013(
-        os.path.join(config.DATA_ROOT, 'data/test_labels.csv'),
-        os.path.join(config.DATA_ROOT, 'data/test')
+        os.path.join(config.DATA_ROOT, 'test_labels.csv'),
+        os.path.join(config.DATA_ROOT, 'test')
     )
     
     train_loader = torch.utils.data.DataLoader(
