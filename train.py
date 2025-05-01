@@ -31,7 +31,7 @@ def main():
     optimizer = optim.AdamW(model.parameters(), lr=config.LR, weight_decay=config.WEIGHT_DECAY)
     scheduler_cosine = CosineAnnealingLR(optimizer, T_max=config.EPOCHS)
     scheduler_plateau = ReduceLROnPlateau(optimizer, mode='max', patience=config.PATIENCE//2, factor=0.5)
-    scaler = amp.GradScaler("cuda")
+    scaler = amp.GradScaler()
     
     # Training variables
     best_val_acc = 0.0
@@ -133,7 +133,7 @@ def train_epoch(model, loader, criterion, optimizer, scaler, device):
         
         optimizer.zero_grad()
         
-        with amp.autocast("cuda"):
+        with amp.autocast():
             outputs = model(images)
             loss = criterion(outputs, labels)
         
