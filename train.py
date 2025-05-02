@@ -6,6 +6,7 @@ import torch.cuda.amp as amp
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from configs.default_config import config
 from data.fer2013_dataset import EnhancedFER2013
